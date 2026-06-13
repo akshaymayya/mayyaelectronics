@@ -95,7 +95,7 @@ export default function AdminDashboard() {
                 />
                 {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
               </div>
-              <button type="submit" className="w-full bg-secondary text-primary font-bold py-3 rounded-xl hover:bg-white transition-colors">
+              <button type="submit" className="w-full bg-white text-primary font-bold py-3 rounded-xl hover:bg-gray-100 transition-colors shadow-md">
                 Secure Login
               </button>
             </form>
