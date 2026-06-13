@@ -9,6 +9,7 @@ export default function Home() {
   const [showPromo, setShowPromo] = useState(false);
   const [hasShownPromo, setHasShownPromo] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [selectedAd, setSelectedAd] = useState(null);
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 500], [0, 150]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
@@ -226,14 +227,21 @@ export default function Home() {
                   <motion.div 
                     key={idx} 
                     variants={fadeInUp}
-                    className="rounded-2xl overflow-hidden shadow-md border border-outline-variant/30 bg-white group"
+                    className="rounded-2xl overflow-hidden shadow-md border border-outline-variant/30 bg-white group cursor-pointer"
+                    onClick={() => setSelectedAd(ad)}
                   >
-                    <div className="aspect-[4/3] w-full overflow-hidden bg-white relative flex items-center justify-center p-2">
+                    <div className="aspect-[4/3] w-full overflow-hidden bg-surface-container-high relative">
                       <img 
                         src={ad.imageUrl} 
                         alt={ad.title || "Advertisement"} 
-                        className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <span className="bg-white text-primary px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2">
+                          <span className="material-symbols-outlined text-sm">visibility</span>
+                          View
+                        </span>
+                      </div>
                     </div>
                     {ad.title && (
                       <div className="p-5 border-t border-outline-variant/20 text-center">
@@ -247,6 +255,44 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* Ad Lightbox Modal */}
+      <AnimatePresence>
+        {selectedAd && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 sm:p-8 backdrop-blur-sm"
+            onClick={() => setSelectedAd(null)}
+          >
+            <button 
+              className="absolute top-6 right-6 text-white hover:text-secondary transition-colors bg-black/50 p-2 rounded-full flex items-center justify-center"
+              onClick={() => setSelectedAd(null)}
+            >
+              <span className="material-symbols-outlined text-3xl">close</span>
+            </button>
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="relative max-w-5xl w-full max-h-[90vh] flex flex-col items-center"
+              onClick={e => e.stopPropagation()}
+            >
+              <img 
+                src={selectedAd.imageUrl} 
+                alt={selectedAd.title || "Advertisement"} 
+                className="w-auto h-auto max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl"
+              />
+              {selectedAd.title && (
+                <div className="mt-4 text-white text-xl font-bold text-center">
+                  {selectedAd.title}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Our Story Section */}
       <section className="py-32 bg-surface px-margin-mobile md:px-margin-desktop relative overflow-hidden" id="story">
