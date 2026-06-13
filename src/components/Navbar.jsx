@@ -64,7 +64,7 @@ export default function Navbar() {
               whileHover={{ scale: 1.05 }}
               alt="Mayya Electronics Logo" 
               className={`h-16 md:h-20 w-auto object-contain transition-all duration-300 ${useWhiteText ? 'brightness-0 invert drop-shadow-md' : ''}`}
-              src="/logo.svg" 
+              src="/logo.png" 
             />
             <div className="flex flex-col font-primary hidden lg:flex">
               <span className={`text-lg font-bold leading-tight tracking-tight transition-colors duration-300 ${useWhiteText ? 'text-white drop-shadow-md' : 'text-primary'}`}>Mayya Electronics</span>
