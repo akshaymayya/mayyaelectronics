@@ -228,11 +228,11 @@ export default function Home() {
                     variants={fadeInUp}
                     className="rounded-2xl overflow-hidden shadow-md border border-outline-variant/30 bg-white group"
                   >
-                    <div className="aspect-[4/3] w-full overflow-hidden bg-surface-container-high relative">
+                    <div className="aspect-[4/3] w-full overflow-hidden bg-white relative flex items-center justify-center p-2">
                       <img 
                         src={ad.imageUrl} 
                         alt={ad.title || "Advertisement"} 
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                       />
                     </div>
                     {ad.title && (

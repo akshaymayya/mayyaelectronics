@@ -311,8 +311,8 @@ export default function AdminDashboard() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   className={`bg-white rounded-2xl shadow-sm border overflow-hidden flex flex-col ${ad.isActive ? 'border-green-200' : 'border-outline-variant/40 opacity-70'}`}
                 >
-                  <div className="h-48 bg-surface-container-high relative overflow-hidden">
-                    <img src={ad.imageUrl} alt="Advertisement" className="w-full h-full object-cover" />
+                  <div className="h-48 bg-white relative overflow-hidden flex items-center justify-center p-2 border-b border-outline-variant/30">
+                    <img src={ad.imageUrl} alt="Advertisement" className="w-full h-full object-contain" />
                     <div className="absolute top-3 right-3 flex gap-2">
                       <span className={`px-3 py-1 rounded-full text-xs font-bold ${ad.isActive ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'}`}>
                         {ad.isActive ? 'Active' : 'Hidden'}
