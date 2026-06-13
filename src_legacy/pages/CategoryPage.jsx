@@ -51,7 +51,7 @@ export default function CategoryPage() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter opacity-90"
+          className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-gutter opacity-90"
         >
           {[1, 2, 3, 4, 5, 6].map((item) => (
             <motion.div 

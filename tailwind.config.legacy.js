@@ -81,18 +81,17 @@ export default {
         "body-lg": ["Apple Garamond", "serif"],
         "title-lg": ["Outfit", "sans-serif"],
         "primary": ["Outfit", "sans-serif"],
-        "secondary": ["Apple Garamond", "serif"],
-        "jakarta": ["Plus Jakarta Sans", "sans-serif"]
+        "secondary": ["Apple Garamond", "serif"]
       },
       fontSize: {
-        "label-md": ["16px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
-        "body-md": ["20px", {"lineHeight": "1.6", "fontWeight": "400"}],
+        "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
         "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
         "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
         "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
         "display-lg": ["56px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
         "headline-lg": ["40px", {"lineHeight": "1.2", "fontWeight": "700"}],
-        "body-lg": ["24px", {"lineHeight": "1.6", "fontWeight": "400"}],
+        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
         "title-lg": ["20px", {"lineHeight": "1.5", "fontWeight": "600"}]
       }
     },

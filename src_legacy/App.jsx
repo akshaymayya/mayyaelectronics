@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-import Lenis from 'lenis';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -8,37 +6,9 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import ReturnPolicy from './pages/ReturnPolicy';
 import CategoryPage from './pages/CategoryPage';
-import AdminDashboard from './pages/AdminDashboard';
-import SupportPage from './pages/SupportPage';
-import NotFound from './pages/NotFound';
 import ScrollToTop from './components/ScrollToTop';
 
 function App() {
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      direction: 'vertical',
-      gestureDirection: 'vertical',
-      smooth: true,
-      mouseMultiplier: 1,
-      smoothTouch: false,
-      touchMultiplier: 2,
-      infinite: false,
-    });
-
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-
-    return () => {
-      lenis.destroy();
-    };
-  }, []);
-
   return (
     <Router>
       <ScrollToTop />
@@ -51,9 +21,6 @@ function App() {
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/return" element={<ReturnPolicy />} />
             <Route path="/category/:categoryId" element={<CategoryPage />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/support" element={<SupportPage />} />
-            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
         <Footer />

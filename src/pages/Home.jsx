@@ -1,14 +1,29 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import ProductCard from '../components/ProductCard';
 
 export default function Home() {
   const [showPromo, setShowPromo] = useState(false);
   const [hasShownPromo, setHasShownPromo] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 500], [0, 150]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+  
+  const activeAds = useQuery(api.advertisements.getActive) || [];
+
+  const videoRef = useRef(null);
+  const { scrollYProgress: videoScrollYProgress } = useScroll({
+    target: videoRef,
+    offset: ["start end", "end start"]
+  });
+  const videoY = useTransform(videoScrollYProgress, [0, 1], ['-20%', '20%']);
+  const [heroVideoEnded, setHeroVideoEnded] = useState(false);
+
+  // The Support section has been moved to its own page
 
   const staggerContainer = {
     hidden: { opacity: 0 },
@@ -26,69 +41,128 @@ export default function Home() {
   return (
     <main>
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-black">
+      <section className="relative min-h-screen flex flex-col pt-24 overflow-hidden bg-black font-sans">
         <motion.div style={{ y: heroY, opacity }} className="absolute inset-0 z-0 bg-black">
-          <img alt="Mayya Electronics Showroom" className="w-full h-full object-cover opacity-60" src="/hero-bg.png" />
-          <div className="absolute inset-0 bg-gradient-to-l from-black via-black/60 to-transparent"></div>
+          <img 
+            alt="Mayya Electronics Showroom" 
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${heroVideoEnded ? 'opacity-50' : 'opacity-0'}`} 
+            src="/hero-bg.png" 
+          />
+          <video 
+            autoPlay 
+            muted 
+            playsInline
+            onEnded={() => setHeroVideoEnded(true)}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${heroVideoEnded ? 'opacity-0' : 'opacity-50'}`}
+            src="/mayya electronic short video.mp4"
+          />
+          <div className="absolute inset-0 bg-black/40"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
         </motion.div>
 
-        <div className="relative z-10 w-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto py-20 flex justify-end">
+        <div className="relative z-10 flex-grow flex flex-col items-center justify-center w-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto pt-10 pb-10 text-center">
           <motion.div
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
-            className="max-w-2xl text-white text-right flex flex-col items-end"
+            className="max-w-4xl flex flex-col items-center"
           >
-            <motion.div variants={fadeInUp} className="inline-flex items-center gap-3 mb-6 px-5 py-2 border border-secondary-fixed/50 bg-white/5 backdrop-blur-xl rounded-full shadow-2xl">
-              <span className="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse shadow-[0_0_10px_rgba(212,175,55,0.8)]"></span>
-              <span className="text-sm font-label-md tracking-wider text-secondary-fixed-dim">EST. 1996</span>
+            {/* Top Badge */}
+            <motion.div variants={fadeInUp} className="flex items-center gap-2 mb-8 border border-white/20 bg-white/5 backdrop-blur-sm rounded-full py-1.5 px-4 shadow-xl">
+              <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center p-1 relative overflow-hidden">
+                <img src="https://lh3.googleusercontent.com/COxitqgJr1sJnIDe8-jiKhxDx1FrYbtRHKJ9z_hELisAlapwE9LUPh6fcXIfb5vwpbMl4xl9H9TRFPc5NOO8Sb3VSgIBrfRYvW6cUA" alt="Google" className="w-full h-full object-contain" />
+              </div>
+              <span className="text-sm font-medium text-white/90">4.9 on Google Reviews</span>
             </motion.div>
-            <motion.h1 variants={fadeInUp} className="font-display-lg text-display-lg md:text-[80px] leading-[1.1] mb-6 drop-shadow-2xl">
-              Mangaluru's <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-[#F9F7F2]">Trusted</span> Destination
+
+            {/* Main Headline */}
+            <motion.h1 variants={fadeInUp} className="text-4xl sm:text-5xl md:text-7xl lg:text-[84px] font-bold text-white leading-[1.05] tracking-tight mb-8">
+              Premium appliances.<br />Better living.
             </motion.h1>
-            <motion.p variants={fadeInUp} className="font-body-lg text-body-lg mb-12 text-white/80 max-w-lg leading-relaxed">
-              Opposite Govinda Dasa College, Main Road, Surathkal. A legacy of quality service and premium home solutions spanning nearly three decades across Surathkal and Kinnigoli.
+
+            {/* Subheadline */}
+            <motion.p variants={fadeInUp} className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mb-10 leading-relaxed font-medium">
+              Unlock the power of seamless home management and smart appliances with a  legacy of quality service and premium home solutions spanning nearly three decades across Surathkal and Kinnigoli.
             </motion.p>
-            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-6 justify-end">
+
+            {/* CTA Button */}
+            <motion.div variants={fadeInUp}>
               <motion.a
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-secondary-fixed text-on-secondary-fixed px-10 py-4 font-label-md text-label-md text-center shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_30px_rgba(212,175,55,0.6)] transition-shadow rounded-sm"
+                className="inline-block bg-[#D6F000] text-black px-8 py-4 font-semibold text-lg rounded-full shadow-lg transition-transform"
                 href="#products"
               >
                 View Collections
-              </motion.a>
-              <motion.a
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,1)", color: "#001F3F" }}
-                whileTap={{ scale: 0.95 }}
-                className="border border-white/30 bg-white/5 backdrop-blur-md text-white px-10 py-4 font-label-md text-label-md text-center transition-all rounded-sm"
-                href="#visit"
-              >
-                Get Directions
               </motion.a>
             </motion.div>
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 1 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        >
-          <span className="text-xs tracking-[0.2em] text-white/50 uppercase">Scroll</span>
+        {/* Bottom Trust Area */}
+        <div className="relative z-10 w-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto pb-8 mt-auto">
           <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-            className="w-px h-12 bg-gradient-to-b from-secondary to-transparent"
-          />
-        </motion.div>
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="flex flex-col md:flex-row justify-between items-center gap-8 border-t border-white/10 pt-8"
+          >
+            {/* Left */}
+            <div className="flex flex-col items-center md:items-start gap-1 w-full md:w-1/3">
+              <div className="flex items-center gap-1 text-[#00B67A]">
+                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: '"FILL" 1' }}>star</span>
+                <span className="text-white font-bold text-lg tracking-tight">Trustpilot</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map(i => <span key={i} className="material-symbols-outlined text-[10px] bg-[#00B67A] text-white rounded-[2px] p-[2px]" style={{ fontVariationSettings: '"FILL" 1' }}>star</span>)}
+                </div>
+                <span className="text-xs text-white/70">4.8 (2,004 reviews)</span>
+              </div>
+            </div>
+
+            {/* Center */}
+            <div className="flex flex-col items-center gap-4 w-full md:w-1/3 overflow-hidden">
+              <span className="text-xs text-white/70 font-medium tracking-wide uppercase text-center">Brand products we have</span>
+              <div className="w-full max-w-xs md:max-w-[450px] overflow-hidden relative">
+                {/* Gradient fade edges */}
+                <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-black to-transparent z-10" />
+                <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-black to-transparent z-10" />
+                
+                <motion.div 
+                  className="flex gap-12 items-center w-max opacity-80"
+                  animate={{ x: [0, "-50%"] }}
+                  transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
+                >
+                  {[
+                    { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCpcCpdlcGbrEBfQ-IQeUc9fO25N7aS2TkOx6w0lttBy12w_R15hHTXyaIZExySn_A0fiJxw44cQhyM4FUPG24pwgbx5ZPa4YEBeod4nHTJ0OhBxRRAXoLyE1W2rxH6tN6iiP5HU4VIFmMczTUc6pDYxmYTj7vz7t2ait4Dfz32sbBlCh4uEVnW6Hk86mBfH9asyovxxl-nzBfO3ZK-VNWYKoWcv5bYnQkYtmfmfdL1980sq65JkIiZQk703QqpHZsElQ_GidpB00g", alt: "Samsung", className: "h-8 md:h-10 w-auto object-contain grayscale brightness-200" },
+                    { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDk_kWgFygXrBmS7ZU9CBfKuZ74xY8hmac_OfBdNLD81QTuV2QO5h-Xo94fPTMpURsDxBE_uKDbS247EUSy8qy4U8imftpRt5F2ejd6wSqDj23ryFrFdVXfR9msiQBulUSP8CxB65GcK3R962WQegr7e_QsvRVZFgboRf9Ul9laWZrdHws2R451NiGpCbCOtLAoOENyjMf_9_gf3pTtYvl9BEok3OvMF7avCmcjLOxQlfDM7mzLWSWtE0kUAvNZaxdm_dtqCLGTbsg", alt: "LG", className: "h-5 md:h-6 w-auto object-contain grayscale brightness-200" },
+                    { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCO-H71Wclb-j4Q5MCr7uBr-Qq1Ny0ig25qdwekvJi_Jhw1NZkDnqn-osRk6_PjlSc8-V5Aw70TG89g5l2nUf0cBr-yqfS_mYTs3oEqleyQV-363IfDoVm1MmJtts30NFrp87edl-QlXiJyksg5sywWo2LMH6Z1sE0qc0Oa41UDPDw0yx7gU_HvoPYzdRMnfePvojbnTjWwgimxsU2B3mdqLyreFGcie3HnYI87gXu-uGg6gh2oFKcXLUyf2peVTyXVwgA7uyg1ztI", alt: "Sony", className: "h-4 md:h-5 w-auto object-contain brightness-0 invert" },
+                    { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDhEj2dU_4-_7I33b-4NvzA46nFPZVp4bwb74g0eSiLZJ5nxVFvv6WzdiJLkRHNkVh7uc0fcTbn-8B4QFwbwMjScqF4Hpc2CZbre3i6hYuiRZHa8X7Tqvx8Zy7utXwzxsdzmBCWSlJtyW3oDiTNFSOTcTLsS0C9xgro2cNa7w0MlQHOmpmqTzBJ7xSAl2jLrD_gZJAF3y0Tv16oxu0Y-Wk4GTTNZ-w2dSJqf8TOCoND6HgapQv-Yfm8S4uNg21qGoGrMC7RuPekRAc", alt: "Panasonic", className: "h-4 md:h-5 w-auto object-contain brightness-0 invert opacity-70" },
+                    { src: "/haier-seeklogo.png", alt: "Haier", className: "h-5 md:h-6 w-auto object-contain brightness-0 invert opacity-80" },
+                    { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCpcCpdlcGbrEBfQ-IQeUc9fO25N7aS2TkOx6w0lttBy12w_R15hHTXyaIZExySn_A0fiJxw44cQhyM4FUPG24pwgbx5ZPa4YEBeod4nHTJ0OhBxRRAXoLyE1W2rxH6tN6iiP5HU4VIFmMczTUc6pDYxmYTj7vz7t2ait4Dfz32sbBlCh4uEVnW6Hk86mBfH9asyovxxl-nzBfO3ZK-VNWYKoWcv5bYnQkYtmfmfdL1980sq65JkIiZQk703QqpHZsElQ_GidpB00g", alt: "Samsung", className: "h-8 md:h-10 w-auto object-contain grayscale brightness-200" },
+                    { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDk_kWgFygXrBmS7ZU9CBfKuZ74xY8hmac_OfBdNLD81QTuV2QO5h-Xo94fPTMpURsDxBE_uKDbS247EUSy8qy4U8imftpRt5F2ejd6wSqDj23ryFrFdVXfR9msiQBulUSP8CxB65GcK3R962WQegr7e_QsvRVZFgboRf9Ul9laWZrdHws2R451NiGpCbCOtLAoOENyjMf_9_gf3pTtYvl9BEok3OvMF7avCmcjLOxQlfDM7mzLWSWtE0kUAvNZaxdm_dtqCLGTbsg", alt: "LG", className: "h-5 md:h-6 w-auto object-contain grayscale brightness-200" },
+                    { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCO-H71Wclb-j4Q5MCr7uBr-Qq1Ny0ig25qdwekvJi_Jhw1NZkDnqn-osRk6_PjlSc8-V5Aw70TG89g5l2nUf0cBr-yqfS_mYTs3oEqleyQV-363IfDoVm1MmJtts30NFrp87edl-QlXiJyksg5sywWo2LMH6Z1sE0qc0Oa41UDPDw0yx7gU_HvoPYzdRMnfePvojbnTjWwgimxsU2B3mdqLyreFGcie3HnYI87gXu-uGg6gh2oFKcXLUyf2peVTyXVwgA7uyg1ztI", alt: "Sony", className: "h-4 md:h-5 w-auto object-contain brightness-0 invert" },
+                    { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDhEj2dU_4-_7I33b-4NvzA46nFPZVp4bwb74g0eSiLZJ5nxVFvv6WzdiJLkRHNkVh7uc0fcTbn-8B4QFwbwMjScqF4Hpc2CZbre3i6hYuiRZHa8X7Tqvx8Zy7utXwzxsdzmBCWSlJtyW3oDiTNFSOTcTLsS0C9xgro2cNa7w0MlQHOmpmqTzBJ7xSAl2jLrD_gZJAF3y0Tv16oxu0Y-Wk4GTTNZ-w2dSJqf8TOCoND6HgapQv-Yfm8S4uNg21qGoGrMC7RuPekRAc", alt: "Panasonic", className: "h-4 md:h-5 w-auto object-contain brightness-0 invert opacity-70" },
+                    { src: "/haier-seeklogo.png", alt: "Haier", className: "h-5 md:h-6 w-auto object-contain brightness-0 invert opacity-80" }
+                  ].map((logo, idx) => (
+                    <img key={idx} src={logo.src} alt={logo.alt} className={logo.className} />
+                  ))}
+                </motion.div>
+              </div>
+            </div>
+
+            {/* Right */}
+            <div className="flex flex-col items-center md:items-end gap-1 w-full md:w-1/3 text-center md:text-right">
+              <span className="text-sm font-bold text-white uppercase tracking-widest">EST. 1996</span>
+              <span className="text-[10px] text-white/50 uppercase">Legacy Showroom</span>
+            </div>
+          </motion.div>
+        </div>
       </section>
 
       {/* Experience Section */}
-      <section className="bg-surface py-20 px-margin-mobile md:px-margin-desktop" id="experience">
+      <section className="bg-surface py-20 px-margin-mobile md:px-margin-desktop" id="experience" ref={videoRef}>
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -97,30 +171,82 @@ export default function Home() {
           className="max-w-container-max mx-auto"
         >
           <motion.div variants={fadeInUp} className="text-center mb-12">
-            <h2 className="font-headline-lg text-headline-lg md:text-5xl text-primary mb-4">Experience the Showroom</h2>
-            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Take a glimpse into our world of premium appliances and unmatched service.</p>
+            <h2 className="font-headline-lg text-headline-lg md:text-5xl text-primary mb-4 font-sans font-bold">Experience the Showroom</h2>
+            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto font-sans">Take a glimpse into our world of premium appliances and unmatched service.</p>
           </motion.div>
           <motion.div
             variants={fadeInUp}
-            className="w-full aspect-video rounded-2xl overflow-hidden shadow-2xl relative bg-black flex items-center justify-center border border-outline-variant group"
+            style={{ y: videoY }}
+            className="w-full rounded-2xl overflow-hidden shadow-2xl relative bg-black flex items-center justify-center border border-outline-variant group"
           >
             {/* Cinematic Overlay Vignette */}
-            <div className="absolute inset-0 pointer-events-none rounded-2xl shadow-[inset_0_0_80px_rgba(0,0,0,0.5)] z-10" />
+            <div className="absolute inset-0 pointer-events-none rounded-2xl shadow-[inset_0_0_80px_rgba(0,0,0,0.5)] z-20" />
 
             <video
-              controls
               autoPlay
-              muted
+              muted={isMuted}
               loop
               playsInline
-              className="w-full h-full object-contain md:object-cover brightness-105 contrast-[1.15] saturate-[1.1]"
+              className="w-full h-auto brightness-105 contrast-[1.15] saturate-[1.1] z-10"
             >
-              <source src="/mayyaeectronics_video.mp4" type="video/mp4" />
+              <source src="/mayyaelectronic_video.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
+
+            {/* Custom Mute/Unmute Button */}
+            <button
+              onClick={() => setIsMuted(!isMuted)}
+              className="absolute bottom-6 right-6 z-30 bg-black/50 hover:bg-black/80 backdrop-blur-md text-white p-3 rounded-full transition-colors flex items-center justify-center border border-white/10 shadow-lg"
+              aria-label={isMuted ? "Unmute video" : "Mute video"}
+            >
+              <span className="material-symbols-outlined text-2xl">
+                {isMuted ? 'volume_off' : 'volume_up'}
+              </span>
+            </button>
           </motion.div>
         </motion.div>
       </section>
+
+      {/* Advertisements & Deals */}
+      {activeAds.length > 0 && (
+        <section className="py-16 bg-surface-container-lowest px-margin-mobile md:px-margin-desktop">
+          <div className="max-w-container-max mx-auto">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+            >
+              <motion.div variants={fadeInUp} className="text-center mb-12">
+                <h2 className="font-headline-lg text-3xl md:text-4xl text-primary font-bold">Latest Updates & Deals</h2>
+                <p className="text-on-surface-variant mt-2">Check out our ongoing offers and new arrivals</p>
+              </motion.div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {activeAds.map((ad, idx) => (
+                  <motion.div 
+                    key={idx} 
+                    variants={fadeInUp}
+                    className="rounded-2xl overflow-hidden shadow-md border border-outline-variant/30 bg-white group"
+                  >
+                    <div className="aspect-[4/3] w-full overflow-hidden bg-surface-container-high relative">
+                      <img 
+                        src={ad.imageUrl} 
+                        alt={ad.title || "Advertisement"} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                    {ad.title && (
+                      <div className="p-5 border-t border-outline-variant/20 text-center">
+                        <h3 className="font-bold text-primary text-lg">{ad.title}</h3>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Our Story Section */}
       <section className="py-32 bg-surface px-margin-mobile md:px-margin-desktop relative overflow-hidden" id="story">
@@ -151,7 +277,7 @@ export default function Home() {
               />
               <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-primary/90 to-transparent pt-20">
                 <p className="font-headline-sm text-headline-sm text-white italic mb-2">"Quality is the bridge between a house and a home."</p>
-                <p className="font-label-md text-label-md uppercase tracking-wider text-secondary">— Mr. Shivprasad Mayya</p>
+                <p className="font-label-md text-label-md uppercase tracking-wider text-white">— Mr. Shivprasad Mayya</p>
               </div>
             </div>
             {/* Accent box behind image */}
@@ -164,7 +290,7 @@ export default function Home() {
             </motion.h2>
             <div className="space-y-6 max-w-2xl">
               <motion.p variants={fadeInUp} className="font-headline-sm text-headline-sm text-primary/80 italic leading-relaxed border-l-2 border-secondary/30 pl-6">
-                Founded in 1996 by late Mr. Kilpady Ramachandra Mayya, our store began with a simple vision: to bring the best home technology to the heart of Surathkal and Kinnigoli.
+                Founded in 1996 by late K.R Mayya, our store began with a simple vision: to bring the best home technology to the heart of Surathkal and Kinnigoli.
               </motion.p>
               <motion.p variants={fadeInUp} className="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
                 What started as a small family venture has grown into Mangaluru's premier destination for home electronics. For over 28 years, we have remained anchored in our original location opposite Govinda Dasa College, serving generations of families with the same personalized care that defined our first day.
@@ -173,7 +299,7 @@ export default function Home() {
                 Our commitment goes beyond the sale. As a family-owned business, we believe in relationships, expert guidance, and being a reliable partner in our community's growth. We don't just sell appliances; we curate lifestyles.
               </motion.p>
             </div>
-            <motion.div variants={fadeInUp} className="mt-14 flex gap-16 border-t border-outline-variant/50 pt-8">
+            <motion.div variants={fadeInUp} className="mt-14 flex flex-col sm:flex-row gap-8 sm:gap-16 border-t border-outline-variant/50 pt-8">
               <div>
                 <p className="text-display-lg font-display-lg text-primary drop-shadow-sm">28<span className="text-secondary">+</span></p>
                 <p className="font-label-md text-[11px] uppercase tracking-widest text-on-surface-variant mt-2">Years of Heritage</p>
@@ -196,7 +322,7 @@ export default function Home() {
           variants={staggerContainer}
           className="max-w-container-max mx-auto"
         >
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
             <motion.div variants={fadeInUp} className="max-w-2xl">
               <h2 className="font-headline-lg text-headline-lg md:text-5xl text-primary mb-6">Curated Collections</h2>
               <p className="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">From entry-level essentials to premium flagship ranges, we bring you the finest engineering from the world's leading brands.</p>
@@ -248,12 +374,33 @@ export default function Home() {
             />
           </motion.div>
 
-          <motion.div variants={fadeInUp} className="mt-24 pt-12 border-t border-outline/20 flex flex-wrap justify-center items-center gap-12 lg:gap-20 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-700">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpcCpdlcGbrEBfQ-IQeUc9fO25N7aS2TkOx6w0lttBy12w_R15hHTXyaIZExySn_A0fiJxw44cQhyM4FUPG24pwgbx5ZPa4YEBeod4nHTJ0OhBxRRAXoLyE1W2rxH6tN6iiP5HU4VIFmMczTUc6pDYxmYTj7vz7t2ait4Dfz32sbBlCh4uEVnW6Hk86mBfH9asyovxxl-nzBfO3ZK-VNWYKoWcv5bYnQkYtmfmfdL1980sq65JkIiZQk703QqpHZsElQ_GidpB00g" alt="Samsung" className="h-8 md:h-12 w-auto object-contain" />
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDk_kWgFygXrBmS7ZU9CBfKuZ74xY8hmac_OfBdNLD81QTuV2QO5h-Xo94fPTMpURsDxBE_uKDbS247EUSy8qy4U8imftpRt5F2ejd6wSqDj23ryFrFdVXfR9msiQBulUSP8CxB65GcK3R962WQegr7e_QsvRVZFgboRf9Ul9laWZrdHws2R451NiGpCbCOtLAoOENyjMf_9_gf3pTtYvl9BEok3OvMF7avCmcjLOxQlfDM7mzLWSWtE0kUAvNZaxdm_dtqCLGTbsg" alt="LG" className="h-8 md:h-12 w-auto object-contain" />
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCO-H71Wclb-j4Q5MCr7uBr-Qq1Ny0ig25qdwekvJi_Jhw1NZkDnqn-osRk6_PjlSc8-V5Aw70TG89g5l2nUf0cBr-yqfS_mYTs3oEqleyQV-363IfDoVm1MmJtts30NFrp87edl-QlXiJyksg5sywWo2LMH6Z1sE0qc0Oa41UDPDw0yx7gU_HvoPYzdRMnfePvojbnTjWwgimxsU2B3mdqLyreFGcie3HnYI87gXu-uGg6gh2oFKcXLUyf2peVTyXVwgA7uyg1ztI" alt="Sony" className="h-8 md:h-12 w-auto object-contain" />
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhEj2dU_4-_7I33b-4NvzA46nFPZVp4bwb74g0eSiLZJ5nxVFvv6WzdiJLkRHNkVh7uc0fcTbn-8B4QFwbwMjScqF4Hpc2CZbre3i6hYuiRZHa8X7Tqvx8Zy7utXwzxsdzmBCWSlJtyW3oDiTNFSOTcTLsS0C9xgro2cNa7w0MlQHOmpmqTzBJ7xSAl2jLrD_gZJAF3y0Tv16oxu0Y-Wk4GTTNZ-w2dSJqf8TOCoND6HgapQv-Yfm8S4uNg21qGoGrMC7RuPekRAc" alt="Panasonic" className="h-8 md:h-12 w-auto object-contain" />
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC77jV9g8_giRrUN4lxyYYc2bNLjtX16J5OSnCVZJ_8MuadRRNeiW5AoOqcUGCNOFzf_f-_ewrDHyBLIyrAl7Fj1ATKwEUJcmGQBE0-5rEPRmw9lWNShgRoDriR8iJmVNzXtQtcFNDN0NpuSzxyXc4sxeJYpPf0aQSW3v0nQoRMETCD8Ig-gCCLO67DV9IlXFEibmTCtlAn3H26uwIwIOhp3SIyQvhyAnpJwU8EbUiC84hkn6NLIw3Cyy0hOhqUrcFzo__eZaojYmA" alt="Haier" className="h-8 md:h-12 w-auto object-contain" />
+          <motion.div variants={fadeInUp} className="mt-24 pt-12 border-t border-outline/20 flex flex-col justify-center items-center w-full">
+            <div className="w-full overflow-hidden relative">
+              {/* Gradient fade edges for surface background */}
+              <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-surface to-transparent z-10" />
+              <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-surface to-transparent z-10" />
+              
+              <motion.div 
+                className="flex gap-16 lg:gap-24 items-center w-max grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-700"
+                animate={{ x: [0, "-50%"] }}
+                transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
+              >
+                {[
+                  { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCpcCpdlcGbrEBfQ-IQeUc9fO25N7aS2TkOx6w0lttBy12w_R15hHTXyaIZExySn_A0fiJxw44cQhyM4FUPG24pwgbx5ZPa4YEBeod4nHTJ0OhBxRRAXoLyE1W2rxH6tN6iiP5HU4VIFmMczTUc6pDYxmYTj7vz7t2ait4Dfz32sbBlCh4uEVnW6Hk86mBfH9asyovxxl-nzBfO3ZK-VNWYKoWcv5bYnQkYtmfmfdL1980sq65JkIiZQk703QqpHZsElQ_GidpB00g", alt: "Samsung" },
+                  { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDk_kWgFygXrBmS7ZU9CBfKuZ74xY8hmac_OfBdNLD81QTuV2QO5h-Xo94fPTMpURsDxBE_uKDbS247EUSy8qy4U8imftpRt5F2ejd6wSqDj23ryFrFdVXfR9msiQBulUSP8CxB65GcK3R962WQegr7e_QsvRVZFgboRf9Ul9laWZrdHws2R451NiGpCbCOtLAoOENyjMf_9_gf3pTtYvl9BEok3OvMF7avCmcjLOxQlfDM7mzLWSWtE0kUAvNZaxdm_dtqCLGTbsg", alt: "LG" },
+                  { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCO-H71Wclb-j4Q5MCr7uBr-Qq1Ny0ig25qdwekvJi_Jhw1NZkDnqn-osRk6_PjlSc8-V5Aw70TG89g5l2nUf0cBr-yqfS_mYTs3oEqleyQV-363IfDoVm1MmJtts30NFrp87edl-QlXiJyksg5sywWo2LMH6Z1sE0qc0Oa41UDPDw0yx7gU_HvoPYzdRMnfePvojbnTjWwgimxsU2B3mdqLyreFGcie3HnYI87gXu-uGg6gh2oFKcXLUyf2peVTyXVwgA7uyg1ztI", alt: "Sony" },
+                  { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDhEj2dU_4-_7I33b-4NvzA46nFPZVp4bwb74g0eSiLZJ5nxVFvv6WzdiJLkRHNkVh7uc0fcTbn-8B4QFwbwMjScqF4Hpc2CZbre3i6hYuiRZHa8X7Tqvx8Zy7utXwzxsdzmBCWSlJtyW3oDiTNFSOTcTLsS0C9xgro2cNa7w0MlQHOmpmqTzBJ7xSAl2jLrD_gZJAF3y0Tv16oxu0Y-Wk4GTTNZ-w2dSJqf8TOCoND6HgapQv-Yfm8S4uNg21qGoGrMC7RuPekRAc", alt: "Panasonic" },
+                  { src: "/haier-seeklogo.png", alt: "Haier" },
+                  { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCpcCpdlcGbrEBfQ-IQeUc9fO25N7aS2TkOx6w0lttBy12w_R15hHTXyaIZExySn_A0fiJxw44cQhyM4FUPG24pwgbx5ZPa4YEBeod4nHTJ0OhBxRRAXoLyE1W2rxH6tN6iiP5HU4VIFmMczTUc6pDYxmYTj7vz7t2ait4Dfz32sbBlCh4uEVnW6Hk86mBfH9asyovxxl-nzBfO3ZK-VNWYKoWcv5bYnQkYtmfmfdL1980sq65JkIiZQk703QqpHZsElQ_GidpB00g", alt: "Samsung" },
+                  { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDk_kWgFygXrBmS7ZU9CBfKuZ74xY8hmac_OfBdNLD81QTuV2QO5h-Xo94fPTMpURsDxBE_uKDbS247EUSy8qy4U8imftpRt5F2ejd6wSqDj23ryFrFdVXfR9msiQBulUSP8CxB65GcK3R962WQegr7e_QsvRVZFgboRf9Ul9laWZrdHws2R451NiGpCbCOtLAoOENyjMf_9_gf3pTtYvl9BEok3OvMF7avCmcjLOxQlfDM7mzLWSWtE0kUAvNZaxdm_dtqCLGTbsg", alt: "LG" },
+                  { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCO-H71Wclb-j4Q5MCr7uBr-Qq1Ny0ig25qdwekvJi_Jhw1NZkDnqn-osRk6_PjlSc8-V5Aw70TG89g5l2nUf0cBr-yqfS_mYTs3oEqleyQV-363IfDoVm1MmJtts30NFrp87edl-QlXiJyksg5sywWo2LMH6Z1sE0qc0Oa41UDPDw0yx7gU_HvoPYzdRMnfePvojbnTjWwgimxsU2B3mdqLyreFGcie3HnYI87gXu-uGg6gh2oFKcXLUyf2peVTyXVwgA7uyg1ztI", alt: "Sony" },
+                  { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDhEj2dU_4-_7I33b-4NvzA46nFPZVp4bwb74g0eSiLZJ5nxVFvv6WzdiJLkRHNkVh7uc0fcTbn-8B4QFwbwMjScqF4Hpc2CZbre3i6hYuiRZHa8X7Tqvx8Zy7utXwzxsdzmBCWSlJtyW3oDiTNFSOTcTLsS0C9xgro2cNa7w0MlQHOmpmqTzBJ7xSAl2jLrD_gZJAF3y0Tv16oxu0Y-Wk4GTTNZ-w2dSJqf8TOCoND6HgapQv-Yfm8S4uNg21qGoGrMC7RuPekRAc", alt: "Panasonic" },
+                  { src: "/haier-seeklogo.png", alt: "Haier" }
+                ].map((logo, idx) => (
+                  <img key={idx} src={logo.src} alt={logo.alt} className="h-8 md:h-12 w-auto object-contain" />
+                ))}
+              </motion.div>
+            </div>
           </motion.div>
         </motion.div>
       </section>
@@ -272,25 +419,27 @@ export default function Home() {
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center mb-20">
             <motion.div variants={fadeInUp}>
-              <h2 className="font-headline-lg text-headline-lg md:text-5xl mb-6">Why People of Mangalore Trust Mayya Electronics</h2>
-              <p className="font-body-lg text-body-lg text-white/70 max-w-lg leading-relaxed">Nearly three decades of dedicated service has built a foundation of trust that goes beyond just a purchase. We are your neighbors, your advisors, and your long-term partners in home care.</p>
+              <h2 className="font-headline-lg text-4xl md:text-5xl lg:text-6xl mb-6">Why People of Mangalore Trust Mayya Electronics</h2>
+              <p className="font-body-lg text-lg md:text-xl text-white/80 max-w-xl leading-relaxed">Nearly three decades of dedicated service has built a foundation of trust that goes beyond just a purchase. We are your neighbors, your advisors, and your long-term partners in home care.</p>
             </motion.div>
-            <motion.div variants={fadeInUp} className="hidden md:flex justify-end">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="w-56 h-56 rounded-full border border-secondary-fixed/20 flex items-center justify-center p-4 relative"
-              >
-                <div className="absolute inset-0 rounded-full border-t border-secondary blur-sm"></div>
-                <div className="text-center" style={{ transform: 'rotate(-0deg)' }}>
-                  <span className="block text-5xl font-display-lg text-secondary-fixed mb-1">28+</span>
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-label-md">Years Since 1996</span>
+            <motion.div variants={fadeInUp} className="flex justify-center md:justify-end mt-12 md:mt-0">
+              <div className="w-48 h-48 sm:w-56 sm:h-56 relative flex items-center justify-center">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0 rounded-full border border-secondary-fixed/20 p-4"
+                >
+                  <div className="absolute inset-0 rounded-full border-t-2 border-secondary drop-shadow-[0_0_10px_rgba(214,240,0,0.8)]"></div>
+                </motion.div>
+                <div className="text-center relative z-10">
+                  <span className="block text-4xl sm:text-5xl font-display-lg text-secondary-fixed mb-1">28+</span>
+                  <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.3em] text-white/60 font-label-md">Years Since 1996</span>
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
           </div>
 
-          <motion.div variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <motion.div variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               { icon: 'history', title: '28+ Years', desc: 'An unwavering presence across Surathkal and Kinnigoli, offering wisdom and reliability to every visitor.' },
               { icon: 'verified_user', title: 'Brand Warranty', desc: '100% original products with authorized company warranties and peace of mind.' },
@@ -313,6 +462,7 @@ export default function Home() {
           </motion.div>
         </motion.div>
       </section>
+
 
       {/* Visit & Connect */}
       <section className="py-32 bg-surface px-margin-mobile md:px-margin-desktop relative overflow-hidden" id="visit">
@@ -362,31 +512,41 @@ export default function Home() {
                   <div>
                     <h4 className="font-label-md text-[11px] tracking-widest text-on-surface-variant uppercase mb-2">Instant Support</h4>
                     <p className="font-title-lg text-title-lg text-primary mb-6">Have a question about a product?</p>
-                    <div className="flex flex-wrap gap-4">
-                      <motion.a
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex items-center gap-3 bg-[#25D366] text-white px-6 py-3 font-label-md text-label-md rounded shadow-[0_10px_20px_rgba(37,211,102,0.2)]"
-                        href="https://wa.me/910000000000"
+                    <div className="flex flex-col gap-3 w-full max-w-sm font-jakarta">
+                      {/* WhatsApp Expandable */}
+                      <div className="group w-full flex flex-col bg-white border border-outline-variant/30 rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden">
+                        <button className="w-full flex items-center justify-between text-green-600 px-6 py-3 font-bold text-sm hover:bg-green-50 transition-all">
+                          <div className="flex items-center gap-3">
+                            <span className="material-symbols-outlined text-[20px]">chat</span>
+                            WhatsApp Support
+                          </div>
+                          <span className="material-symbols-outlined text-[18px] transition-transform group-hover:rotate-180">expand_more</span>
+                        </button>
+                        
+                        <div className="max-h-0 group-hover:max-h-32 transition-all duration-300 ease-in-out flex flex-col bg-green-50/30">
+                          <a href="https://wa.me/919845146460" target="_blank" rel="noreferrer" className="px-6 py-3 text-green-700 hover:bg-green-100 font-bold text-sm flex items-center gap-3 border-t border-outline-variant/20">
+                            <span className="material-symbols-outlined text-[16px]">call</span> +91 98451 46460
+                          </a>
+                          <a href="https://wa.me/91994527110" target="_blank" rel="noreferrer" className="px-6 py-3 text-green-700 hover:bg-green-100 font-bold text-sm flex items-center gap-3 border-t border-outline-variant/10">
+                            <span className="material-symbols-outlined text-[16px]">call</span> +91 99452 7110
+                          </a>
+                        </div>
+                      </div>
+
+                      <a
+                        className="flex items-center gap-3 bg-white text-pink-600 border border-outline-variant/30 px-6 py-3 font-bold text-sm rounded-xl shadow-sm hover:shadow-md hover:bg-pink-50 transition-all"
+                        href="https://www.instagram.com/mayyaelectronicsofficial?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                        target="_blank" rel="noreferrer"
                       >
-                        <span className="material-symbols-outlined">message</span>
-                        WhatsApp Support
-                      </motion.a>
-                      <motion.a
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex items-center gap-3 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white px-6 py-3 font-label-md text-label-md rounded shadow-[0_10px_20px_rgba(220,39,67,0.2)]"
-                        href="https://instagram.com/mayyaelectronicsofficial"
-                      >
-                        <span className="material-symbols-outlined">camera_alt</span>
+                        <span className="material-symbols-outlined text-[20px]">photo_camera</span>
                         Instagram
-                      </motion.a>
+                      </a>
                     </div>
                   </div>
                 </div>
               </div>
             </motion.div>
-            <motion.div variants={fadeInUp} className="relative h-[600px] w-full bg-surface-container-highest rounded-2xl overflow-hidden shadow-2xl">
+            <motion.div variants={fadeInUp} className="relative h-[400px] md:h-[600px] w-full bg-surface-container-highest rounded-2xl overflow-hidden shadow-2xl mt-8 md:mt-0">
               <iframe
                 src="https://maps.google.com/maps?q=Mayya%20Electronics%20Surathkal&t=&z=15&ie=UTF8&iwloc=&output=embed"
                 width="100%"
@@ -418,7 +578,7 @@ export default function Home() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative z-10 max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center bg-transparent rounded-2xl overflow-hidden shadow-2xl"
             >
-              <button 
+              <button
                 onClick={() => setShowPromo(false)}
                 className="absolute top-4 right-4 w-10 h-10 bg-black/50 hover:bg-black/80 backdrop-blur text-white rounded-full flex items-center justify-center transition-colors z-20"
               >
