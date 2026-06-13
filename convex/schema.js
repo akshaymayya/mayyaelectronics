@@ -7,6 +7,7 @@ export default defineSchema({
     text: v.string(),
     date: v.string(),
     timestamp: v.number(),
+    isHidden: v.optional(v.boolean()),
   }),
   
   complaints: defineTable({

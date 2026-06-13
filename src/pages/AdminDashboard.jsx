@@ -20,6 +20,10 @@ export default function AdminDashboard() {
   const addAd = useMutation(api.advertisements.add);
   const toggleAd = useMutation(api.advertisements.toggleActive);
   const deleteAd = useMutation(api.advertisements.remove);
+  
+  const reviews = useQuery(api.reviews.getAll) || [];
+  const toggleReviewVisibility = useMutation(api.reviews.toggleVisibility);
+  const deleteReview = useMutation(api.reviews.remove);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -137,6 +141,12 @@ export default function AdminDashboard() {
             className={`px-6 py-2 rounded-full font-medium transition-colors ${activeTab === 'advertisements' ? 'bg-primary text-white' : 'bg-surface-container-high text-primary hover:bg-surface-container-highest'}`}
           >
             Advertisements
+          </button>
+          <button 
+            onClick={() => setActiveTab('reviews')}
+            className={`px-6 py-2 rounded-full font-medium transition-colors ${activeTab === 'reviews' ? 'bg-primary text-white' : 'bg-surface-container-high text-primary hover:bg-surface-container-highest'}`}
+          >
+            Customer Reviews
           </button>
         </div>
 
@@ -348,7 +358,52 @@ export default function AdminDashboard() {
             </AnimatePresence>
           </div>
         </div>
-        )}
+        ) : activeTab === 'reviews' ? (
+        <div className="grid grid-cols-1 gap-4">
+          <AnimatePresence>
+            {reviews.map((review) => (
+              <motion.div 
+                key={review._id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className={`bg-white rounded-2xl shadow-sm border p-6 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center ${review.isHidden ? 'border-outline-variant/40 opacity-70' : 'border-outline-variant/40'}`}
+              >
+                <div className="flex-grow">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-label-md text-secondary-fixed-dim uppercase tracking-wider">{review.author}</span>
+                    <span className="text-on-surface-variant/60 text-sm">• {review.date}</span>
+                    {review.isHidden && (
+                      <span className="ml-2 bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-bold">HIDDEN</span>
+                    )}
+                  </div>
+                  <p className="text-primary text-lg">"{review.text}"</p>
+                </div>
+                
+                <div className="flex-shrink-0 flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-outline-variant/30">
+                  <button 
+                    onClick={() => toggleReviewVisibility({ id: review._id, isHidden: !review.isHidden })}
+                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${review.isHidden ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  >
+                    {review.isHidden ? 'Show Review' : 'Hide Review'}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (window.confirm("Are you sure you want to permanently delete this review?")) {
+                        deleteReview({ id: review._id });
+                      }
+                    }}
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center"
+                    title="Delete Review"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">delete</span>
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+        ) : null}
       </div>
     </main>
   );
