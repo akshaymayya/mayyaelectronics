@@ -547,8 +547,8 @@ export default function Home() {
                   </div>
                   <div>
                     <h4 className="font-label-md text-[11px] tracking-widest text-on-surface-variant uppercase mb-2">Store Hours</h4>
-                    <p className="font-title-lg text-title-lg text-primary">Mon - Sat: 10:00 AM – 8:00 PM</p>
-                    <p className="font-body-md text-body-md text-on-surface-variant mt-1">Closed on Sundays</p>
+                    <p className="font-title-lg text-title-lg text-primary">Mon - Sun: 10:00 AM – 8:00 PM</p>
+                    <p className="font-body-md text-body-md text-on-surface-variant mt-1">Open 7 days a week</p>
                   </div>
                 </div>
                 <div className="flex gap-6 group">
