@@ -318,7 +318,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.8 }}
                 alt="Founder Portrait"
-                className="w-full h-full object-cover grayscale group-hover:grayscale-[0.2] transition-all duration-700"
+                className="w-full h-full object-cover grayscale-0 md:grayscale group-hover:grayscale-[0.2] transition-all duration-700"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYlrlZGXA60yAR8l3wU8X7nCgJsMYZ2nJ9D1DQ9huwiGHjl8GOpp8kGbRZOK-AgjUNjlEDocLsLeQprBVFh7BIhd1JKFGgyY1DQH952NwGtFIFltirL4ybi9D6ee23NMs8BB7grdTSCC66UIj2OBv608MZ3vNa4g7fpDLJiBW3LOGOWRh_vvIhj3YN9Cf22UHPLyYpw3GBPcejVhyriAybG_aJrUkngltEmHi0KEWnBrGwxOzVDR6w2yF-zG03K8YoU5dOA2A4uvL5eg"
               />
               <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-primary/90 to-transparent pt-20">

@@ -274,7 +274,7 @@ export default function AdminDashboard() {
             ))}
           </AnimatePresence>
         </div>
-        ) : (
+        ) : activeTab === 'advertisements' ? (
         <div className="space-y-8">
           {/* Upload Form */}
           <div className="bg-white p-8 rounded-3xl shadow-sm border border-outline-variant/40">

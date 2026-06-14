@@ -47,16 +47,17 @@ export default function Navbar() {
   const useWhiteText = isHomePage && !isScrolled;
 
   return (
-    <motion.header 
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isScrolled || !isHomePage
-          ? 'bg-surface/85 backdrop-blur-md shadow-sm py-2' 
-          : 'bg-transparent py-4'
-      }`}
-    >
+    <>
+      <motion.header 
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          isScrolled || !isHomePage
+            ? 'bg-surface/85 backdrop-blur-md shadow-sm py-2' 
+            : 'bg-transparent py-4'
+        }`}
+      >
       <div className="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto font-sans">
         <div className="flex items-center w-1/4">
           <Link to="/" className="flex items-center gap-3 group">
@@ -108,48 +109,108 @@ export default function Navbar() {
         </button>
       </div>
 
+      </motion.header>
+
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: '-100%' }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: '-100%' }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="fixed inset-0 bg-surface z-40 flex flex-col items-center justify-center pt-20 pb-10 px-margin-mobile"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm flex justify-end"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
-            <nav className="flex flex-col items-center gap-8 w-full max-w-sm">
-              <a href="#story" onClick={(e) => handleNavClick(e, 'story')} className="text-2xl font-bold text-primary hover:text-secondary">Story</a>
-              <a href="#products" onClick={(e) => handleNavClick(e, 'products')} className="text-2xl font-bold text-primary hover:text-secondary">Products</a>
-              <a href="#why" onClick={(e) => handleNavClick(e, 'why')} className="text-2xl font-bold text-primary hover:text-secondary">Why Us</a>
-              <a href="#visit" onClick={(e) => handleNavClick(e, 'visit')} className="text-2xl font-bold text-primary hover:text-secondary">Visit</a>
-              <Link to="/support" target="_blank" onClick={() => setIsMobileMenuOpen(false)} className="text-2xl font-bold text-primary hover:text-secondary">Support</Link>
-              
-              <div className="w-full h-px bg-outline/20 my-4" />
-              
-              <div className="w-full flex flex-col gap-3">
-                <a 
-                  className="w-full bg-white border border-outline-variant/30 text-primary py-3 rounded-xl flex items-center justify-center gap-2 font-bold shadow-sm"
-                  href="tel:+918242475760"
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="h-full w-[85%] max-w-sm bg-surface shadow-2xl flex flex-col pt-6 pb-10 px-8 overflow-y-auto relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-end mb-8">
+                <button 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 text-primary bg-surface-container-low rounded-full hover:bg-surface-container transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[18px] text-green-600">call</span> +91 824-2475760
-                </a>
-                <a 
-                  className="w-full bg-white border border-outline-variant/30 text-primary py-3 rounded-xl flex items-center justify-center gap-2 font-bold shadow-sm"
-                  href="tel:+918242475360"
-                >
-                  <span className="material-symbols-outlined text-[18px] text-green-600">call</span> +91 824-2475360
-                </a>
-                <a 
-                  className="w-full bg-white border border-outline-variant/30 text-primary py-3 rounded-xl flex items-center justify-center gap-2 font-bold shadow-sm"
-                  href="tel:+919845146460"
-                >
-                  <span className="material-symbols-outlined text-[18px] text-green-600">smartphone</span> +91 9845146460
-                </a>
+                  <span className="material-symbols-outlined text-2xl">close</span>
+                </button>
               </div>
-            </nav>
+
+              <motion.nav 
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                variants={{
+                  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+                  hidden: { transition: { staggerChildren: 0.05, staggerDirection: -1 } }
+                }}
+                className="flex flex-col gap-6"
+              >
+                {[
+                  { name: 'Story', id: 'story' },
+                  { name: 'Products', id: 'products' },
+                  { name: 'Why Us', id: 'why' },
+                  { name: 'Visit', id: 'visit' }
+                ].map((item) => (
+                  <motion.a 
+                    key={item.id}
+                    variants={{
+                      hidden: { opacity: 0, x: 20 },
+                      visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: "easeOut" } }
+                    }}
+                    href={`#${item.id}`} 
+                    onClick={(e) => handleNavClick(e, item.id)} 
+                    className="text-3xl font-headline-md text-primary hover:text-secondary transition-colors"
+                  >
+                    {item.name}
+                  </motion.a>
+                ))}
+                
+                <motion.div variants={{
+                  hidden: { opacity: 0, x: 20 },
+                  visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: "easeOut" } }
+                }}>
+                  <Link to="/support" target="_blank" onClick={() => setIsMobileMenuOpen(false)} className="text-3xl font-headline-md text-primary hover:text-secondary transition-colors">
+                    Support
+                  </Link>
+                </motion.div>
+                
+                <motion.div 
+                  variants={{
+                    hidden: { opacity: 0, scaleX: 0 },
+                    visible: { opacity: 1, scaleX: 1, transition: { duration: 0.5 } }
+                  }}
+                  className="w-12 h-1 bg-primary/20 rounded-full my-4" 
+                />
+                
+                <div className="flex flex-col gap-4 mt-2">
+                  {[
+                    { icon: 'call', num: '+91 824-2475760', link: 'tel:+918242475760' },
+                    { icon: 'call', num: '+91 824-2475360', link: 'tel:+918242475360' },
+                    { icon: 'smartphone', num: '+91 9845146460', link: 'tel:+919845146460' }
+                  ].map((contact, i) => (
+                    <motion.a 
+                      key={i}
+                      variants={{
+                        hidden: { opacity: 0, x: 20 },
+                        visible: { opacity: 1, x: 0, transition: { duration: 0.4 } }
+                      }}
+                      className="bg-surface-container-lowest border border-outline-variant/30 text-on-surface py-3 px-4 rounded-2xl flex items-center gap-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-300"
+                      href={contact.link}
+                    >
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span className="material-symbols-outlined text-[20px] text-primary">{contact.icon}</span>
+                      </div>
+                      <span className="text-base tracking-wide font-medium">{contact.num}</span>
+                    </motion.a>
+                  ))}
+                </div>
+              </motion.nav>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </>
   );
 }

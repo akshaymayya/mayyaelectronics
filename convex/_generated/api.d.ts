@@ -10,6 +10,7 @@
 
 import type * as advertisements from "../advertisements.js";
 import type * as complaints from "../complaints.js";
+import type * as deleteBadReview from "../deleteBadReview.js";
 import type * as reviews from "../reviews.js";
 
 import type {
@@ -21,6 +22,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   advertisements: typeof advertisements;
   complaints: typeof complaints;
+  deleteBadReview: typeof deleteBadReview;
   reviews: typeof reviews;
 }>;
 
